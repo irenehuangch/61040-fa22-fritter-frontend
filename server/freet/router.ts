@@ -3,7 +3,9 @@ import express from 'express';
 import FreetCollection from './collection';
 import * as userValidator from '../user/middleware';
 import * as freetValidator from '../freet/middleware';
+import * as circleValidator from '../circles/middleware';
 import * as util from './util';
+import StudioCollection from '../studio/collection';
 
 const router = express.Router();
 
@@ -63,11 +65,13 @@ router.post(
   '/',
   [
     userValidator.isUserLoggedIn,
-    freetValidator.isValidFreetContent
+    freetValidator.isValidFreetContent,
+    circleValidator.isValidNewName,
+    circleValidator.isUserInCircle
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
-    const freet = await FreetCollection.addOne(userId, req.body.content);
+    const freet = await FreetCollection.addOne(userId, req.body.content, req.body.circle_name);
 
     res.status(201).json({
       message: 'Your freet was created successfully.',
@@ -94,6 +98,7 @@ router.delete(
     freetValidator.isValidFreetModifier
   ],
   async (req: Request, res: Response) => {
+    await StudioCollection.deleteOne(req.params.freetId);
     await FreetCollection.deleteOne(req.params.freetId);
     res.status(200).json({
       message: 'Your freet was deleted successfully.'
@@ -120,10 +125,10 @@ router.patch(
     userValidator.isUserLoggedIn,
     freetValidator.isFreetExists,
     freetValidator.isValidFreetModifier,
-    freetValidator.isValidFreetContent
+    freetValidator.isValidFreetUpdate
   ],
   async (req: Request, res: Response) => {
-    const freet = await FreetCollection.updateOne(req.params.freetId, req.body.content);
+    const freet = await FreetCollection.updateOne(req.params.freetId, req.body);
     res.status(200).json({
       message: 'Your freet was updated successfully.',
       freet: util.constructFreetResponse(freet)

@@ -2,6 +2,8 @@ import type {HydratedDocument, Types} from 'mongoose';
 import type {Freet} from './model';
 import FreetModel from './model';
 import UserCollection from '../user/collection';
+import ProfileCollection from '../profile/collection';
+import CircleCollection from '../circles/collection';
 
 /**
  * This files contains a class that has the functionality to explore freets
@@ -17,17 +19,20 @@ class FreetCollection {
    *
    * @param {string} authorId - The id of the author of the freet
    * @param {string} content - The id of the content of the freet
+   * @param {string} circle - The name of the circle to send this freet to
    * @return {Promise<HydratedDocument<Freet>>} - The newly created freet
    */
-  static async addOne(authorId: Types.ObjectId | string, content: string): Promise<HydratedDocument<Freet>> {
+  static async addOne(authorId: Types.ObjectId | string, content: string, circle: string): Promise<HydratedDocument<Freet>> {
     const date = new Date();
     const freet = new FreetModel({
       authorId,
       dateCreated: date,
       content,
-      dateModified: date
+      dateModified: date,
+      circle
     });
     await freet.save(); // Saves freet to MongoDB
+    await ProfileCollection.updateOne(authorId, {freet: freet._id});
     return freet.populate('authorId');
   }
 
@@ -63,15 +68,40 @@ class FreetCollection {
   }
 
   /**
+   * Get all the freets in a given circle or that were sent public by users in this circle
+   *
+   * @param {Types.ObjectId | string} userId - The id of the user in session
+   * @param {string} username - The username of author of the freets
+   * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
+   */
+  static async findAllByCircle(userId: Types.ObjectId | string, circle_name: string): Promise<Array<HydratedDocument<Freet>>> {
+    const users = await CircleCollection.findOneByCircleName(userId, circle_name);
+    return FreetModel.find({
+      $or: [
+        {circle: circle_name},
+        {circle: 'public', authorId: {$in: users}}
+      ]
+    }).sort({dateModified: -1}).populate('authorId');
+  }
+
+  /**
    * Update a freet with the new content
    *
-   * @param {string} freetId - The id of the freet to be updated
-   * @param {string} content - The new content of the freet
+   * @param {Types.ObjectId | string} freetId - The id of the freet to be updated
+   * @param {any} freetDetails - The new details of the freet
    * @return {Promise<HydratedDocument<Freet>>} - The newly updated freet
    */
-  static async updateOne(freetId: Types.ObjectId | string, content: string): Promise<HydratedDocument<Freet>> {
+  static async updateOne(freetId: Types.ObjectId | string, freetDetails: any): Promise<HydratedDocument<Freet>> {
     const freet = await FreetModel.findOne({_id: freetId});
-    freet.content = content;
+
+    if (freetDetails.content) {
+      freet.content = freetDetails.content as string;
+    }
+
+    if (freetDetails.circle_name) {
+      freet.circle = freetDetails.circle_name as string;
+    }
+
     freet.dateModified = new Date();
     await freet.save();
     return freet.populate('authorId');
@@ -80,7 +110,7 @@ class FreetCollection {
   /**
    * Delete a freet with given freetId.
    *
-   * @param {string} freetId - The freetId of freet to delete
+   * @param {Types.ObjectId | string} freetId - The freetId of freet to delete
    * @return {Promise<Boolean>} - true if the freet has been deleted, false otherwise
    */
   static async deleteOne(freetId: Types.ObjectId | string): Promise<boolean> {

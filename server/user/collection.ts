@@ -15,13 +15,14 @@ class UserCollection {
    * Add a new user
    *
    * @param {string} username - The username of the user
+   * @param {string} name - The name of the user
    * @param {string} password - The password of the user
    * @return {Promise<HydratedDocument<User>>} - The newly created user
    */
-  static async addOne(username: string, password: string): Promise<HydratedDocument<User>> {
+  static async addOne(username: string, name: string, password: string): Promise<HydratedDocument<User>> {
     const dateJoined = new Date();
 
-    const user = new UserModel({username, password, dateJoined});
+    const user = new UserModel({username, name, password, dateJoined});
     await user.save(); // Saves user to MongoDB
     return user;
   }
@@ -67,10 +68,15 @@ class UserCollection {
    * @param {Object} userDetails - An object with the user's updated credentials
    * @return {Promise<HydratedDocument<User>>} - The updated user
    */
-  static async updateOne(userId: Types.ObjectId | string, userDetails: {password?: string; username?: string}): Promise<HydratedDocument<User>> {
+   static async updateOne(userId: Types.ObjectId | string, userDetails: {password?: string; username?: string; name?: string}): Promise<HydratedDocument<User>> {
     const user = await UserModel.findOne({_id: userId});
+
     if (userDetails.password) {
       user.password = userDetails.password;
+    }
+
+    if (userDetails.name) {
+      user.name = userDetails.name;
     }
 
     if (userDetails.username) {
@@ -90,6 +96,16 @@ class UserCollection {
   static async deleteOne(userId: Types.ObjectId | string): Promise<boolean> {
     const user = await UserModel.deleteOne({_id: userId});
     return user !== null;
+  }
+
+  /**
+   * Get all the users in the database
+   *
+   * @return {Promise<HydratedDocument<User>[]>} - An array of all of the users
+   */
+  static async findAll(): Promise<Array<HydratedDocument<User>>> {
+    // Retrieves users and sorts them from most to least recently joined
+    return UserModel.find({}).sort({dateJoined: -1});
   }
 }
 

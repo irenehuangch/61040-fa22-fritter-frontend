@@ -2,8 +2,14 @@ import type {Request, Response} from 'express';
 import express from 'express';
 import FreetCollection from '../freet/collection';
 import UserCollection from './collection';
-import * as userValidator from '../user/middleware';
+import * as userValidator from './middleware';
 import * as util from './util';
+import * as followersUtil from '../followers/util';
+import * as profileUtil from '../profile/util';
+import FollowersCollection from '../followers/collection';
+import ProfileCollection from '../profile/collection';
+import CircleCollection from '../circles/collection';
+import StudioCollection from '../studio/collection';
 
 const router = express.Router();
 
@@ -85,12 +91,38 @@ router.delete(
 );
 
 /**
+ * Find all users in the database
+ *
+ * @name GET /api/users
+ *
+ * @param {string} name - user's name
+ * @return {User[]} - The created user
+ * @throws {403} - If there is a user already logged in
+ *
+ */
+router.get(
+  '/',
+  [
+    userValidator.isUserLoggedIn
+  ],
+  async (req: Request, res: Response) => {
+    const all_users = await UserCollection.findAll();
+
+    res.status(201).json({
+      message: 'Successfully retrieved all users.',
+      users: all_users.map(user => util.constructUserResponse(user))
+    });
+  }
+);
+
+/**
  * Create a user account.
  *
  * @name POST /api/users
  *
  * @param {string} username - username of user
  * @param {string} password - user's password
+ * @param {string} name - user's name
  * @return {UserResponse} - The created user
  * @throws {403} - If there is a user already logged in
  * @throws {409} - If username is already taken
@@ -103,24 +135,46 @@ router.post(
     userValidator.isUserLoggedOut,
     userValidator.isValidUsername,
     userValidator.isUsernameNotAlreadyInUse,
+    userValidator.isValidName,
     userValidator.isValidPassword
   ],
   async (req: Request, res: Response) => {
-    const user = await UserCollection.addOne(req.body.username, req.body.password);
+    const user = await UserCollection.addOne(req.body.username, req.body.name, req.body.password);
+
+    const followers = await FollowersCollection.addOne(user); // Initialize a followers object for this user
+    const followers_response = await followersUtil.constructFollowersResponse(followers);
+
+    const profile = await ProfileCollection.addOneByUsername(req.body.username as string);
+    const profile_response = await profileUtil.constructProfileResponse(profile);
+
+    const update = await CircleCollection.updateMany(user._id);
+    if (!update) {
+      res.status(404).json({error: 'Error adding user to all public circles'});
+      return;
+    }
+
+    const circle = await CircleCollection.addOneCircle(user._id, 'public');
+    const all_users = await UserCollection.findAll();
+    circle.users = all_users.map(user => user._id);
+    await circle.save();
+
     req.session.userId = user._id.toString();
     res.status(201).json({
       message: `Your account was created successfully. You have been logged in as ${user.username}`,
-      user: util.constructUserResponse(user)
+      user: util.constructUserResponse(user),
+      followers: followers_response,
+      profile: profile_response
     });
   }
 );
 
 /**
- * Update a user's profile.
+ * Update a user's account settings.
  *
  * @name PATCH /api/users
  *
  * @param {string} username - The user's new username
+ * @param {string} name - The user's new name
  * @param {string} password - The user's new password
  * @return {UserResponse} - The updated user
  * @throws {403} - If user is not logged in
@@ -132,6 +186,7 @@ router.patch(
   [
     userValidator.isUserLoggedIn,
     userValidator.isValidUsername,
+    userValidator.isValidName,
     userValidator.isUsernameNotAlreadyInUse,
     userValidator.isValidPassword
   ],
@@ -139,7 +194,7 @@ router.patch(
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const user = await UserCollection.updateOne(userId, req.body);
     res.status(200).json({
-      message: 'Your profile was updated successfully.',
+      message: 'Your account was updated successfully.',
       user: util.constructUserResponse(user)
     });
   }
@@ -160,8 +215,12 @@ router.delete(
   ],
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
+    await StudioCollection.deleteAll(userId);
     await UserCollection.deleteOne(userId);
     await FreetCollection.deleteMany(userId);
+    await FollowersCollection.deleteOne(req.session.userId);
+    await ProfileCollection.deleteOneProfile(userId);
+    await CircleCollection.deleteMany(userId);
     req.session.userId = undefined;
     res.status(200).json({
       message: 'Your account has been deleted successfully.'

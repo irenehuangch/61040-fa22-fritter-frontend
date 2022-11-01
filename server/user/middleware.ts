@@ -1,4 +1,5 @@
 import type {Request, Response, NextFunction} from 'express';
+import {Types} from 'mongoose';
 import UserCollection from '../user/collection';
 
 /**
@@ -30,6 +31,21 @@ const isValidUsername = (req: Request, res: Response, next: NextFunction) => {
   if (!usernameRegex.test(req.body.username)) {
     res.status(400).json({
       error: 'Username must be a nonempty alphanumeric string.'
+    });
+    return;
+  }
+
+  next();
+};
+
+/**
+ * Checks if a name in req.body is valid (not empty)
+ */
+const isValidName = (req: Request, res: Response, next: NextFunction) => {
+  const nameRegex = /^[\w\s]+$/i;
+  if (!nameRegex.test(req.body.name)) {
+    res.status(400).json({
+      error: 'Name must be a nonempty alphanumeric string (spaces allowed).'
     });
     return;
   }
@@ -78,9 +94,14 @@ const isAccountExists = async (req: Request, res: Response, next: NextFunction) 
  * Checks if a username in req.body is already in use
  */
 const isUsernameNotAlreadyInUse = async (req: Request, res: Response, next: NextFunction) => {
+  if (req.body.username === undefined) {
+    next();
+    return;
+  }
+
   if (req.body.username !== undefined) { // If username is not being changed, skip this check
     const user = await UserCollection.findOneByUsername(req.body.username);
-
+    
     // If the current session user wants to change their username to one which matches
     // the current one irrespective of the case, we should allow them to do so
     if (user && (user?._id.toString() !== req.session.userId)) {
@@ -152,5 +173,6 @@ export {
   isAccountExists,
   isAuthorExists,
   isValidUsername,
-  isValidPassword
+  isValidPassword,
+  isValidName
 };
