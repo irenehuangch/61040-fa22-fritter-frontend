@@ -1,26 +1,23 @@
-<!-- Form for registering an account (block style) -->
+<!-- Form for changing name (block style) -->
 
 <script>
 import BlockForm from '@/components/common/BlockForm.vue';
 
 export default {
-  name: 'RegisterForm',
+  name: 'ChangeNameForm',
   mixins: [BlockForm],
   data() {
     return {
       url: '/api/users',
-      method: 'POST',
+      method: 'PATCH',
       hasBody: true,
       setUsername: true,
       fields: [
-        {id: 'username', label: 'Username', value: ''},
-        {id: 'password', label: 'Password', value: ''},
         {id: 'name', label: 'Name', value: ''}
       ],
-      title: 'Create account',
+      title: 'Change name',
       callback: () => {
-        const message = 'Successfully created an account!';
-        this.$router.push({name: 'Home'});
+        const message = 'Successfully changed name!';
         this.$set(this.alerts, message, 'success');
         setTimeout(() => this.$delete(this.alerts, message), 3000);
       }

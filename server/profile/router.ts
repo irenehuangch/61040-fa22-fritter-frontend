@@ -71,11 +71,8 @@ router.get(
   ],
   async (req: Request, res: Response) => {
     const profile = await ProfileCollection.findOneByUsername(req.query.username as string);
-    const response = await util.constructProfileResponse(profile);
-    res.status(200).json({
-      message: 'Successfully retrived your circle information.',
-      profile: response
-    });
+    const response = await Promise.resolve(util.constructProfileResponse(profile));
+    res.status(200).json(response);
   }
 );
 
@@ -98,10 +95,7 @@ router.put(
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const profile = await ProfileCollection.updateOne(userId, req.body);
     const response = await util.constructProfileResponse(profile);
-    res.status(200).json({
-      message: 'Your account was updated successfully.',
-      profile: response
-    });
+    res.status(200).json(response);
   }
 );
 

@@ -59,7 +59,7 @@ const constructProfileResponse = async (profile: HydratedDocument<Profile>): Pro
   // Populate freets
   const freets = await profile.populate<{freets: Freet[]}>({
     path: 'freets'
-  }).then(m => m.freets);
+  }).then(m => m.freets.filter(f => f.circle === 'public'));
 
   return {
     _id: profileCopy._id.toString(),

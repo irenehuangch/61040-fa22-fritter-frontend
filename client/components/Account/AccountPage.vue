@@ -9,6 +9,7 @@
       </header>
       <ChangeUsernameForm />
       <ChangePasswordForm />
+      <ChangeNameForm />
     </section>
     <section>
       <header>
@@ -24,6 +25,7 @@
 import ChangeUsernameForm from '@/components/Account/ChangeUsernameForm.vue';
 import ChangePasswordForm from '@/components/Account/ChangePasswordForm.vue';
 import DeleteAccountForm from '@/components/Account/DeleteAccountForm.vue';
+import ChangeNameForm from '@/components/Account/ChangeNameForm.vue';
 import LogoutForm from '@/components/Account/LogoutForm.vue';
 
 export default {
@@ -31,6 +33,7 @@ export default {
   components: {
     ChangeUsernameForm,
     ChangePasswordForm,
+    ChangeNameForm,
     DeleteAccountForm,
     LogoutForm
   }

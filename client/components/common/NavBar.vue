@@ -15,10 +15,17 @@
         Home
       </router-link>
       <router-link
-        v-if="$store.state.username"
+      v-if="$store.state.username"
         to="/account"
       >
         Account
+      </router-link>
+      <router-link
+        v-if="$store.state.username"
+        to="/profile"
+        @click.native="$store.commit('refreshProfile')"
+      >
+        Profile
       </router-link>
       <router-link
         v-else
