@@ -65,11 +65,11 @@ router.get(
   },
   [
     studioValidator.isFreetExists,
-    studioValidator.isStudioExists
+    // studioValidator.isStudioExists
   ],
   async (req: Request, res: Response) => {
     const studio = await StudioCollection.findOneByFreetId(req.query.freetId as string);
-    const response = await util.constructStudioResponse(studio);
+    const response = (studio !== null) ? await util.constructStudioResponse(studio) : {};
     res.status(200).json(response);
   }
 );

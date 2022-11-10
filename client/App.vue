@@ -31,6 +31,7 @@ export default {
 <style>
 * {
   box-sizing: border-box;
+  font-family: 'avenir';
 }
 
 body {
@@ -40,6 +41,7 @@ body {
   padding: 0;
   margin: 0;
   font-size: 1.2em;
+  /* background-color: #f1edfa; */
 }
 
 main {
@@ -74,4 +76,6 @@ main {
 .alerts .success {
     background-color: rgb(45, 135, 87);
 }
+
+
 </style>

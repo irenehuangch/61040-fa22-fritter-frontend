@@ -53,5 +53,24 @@ form {
 input {
     padding: 0 5px;
     min-width: 200px;
+    font-family: inherit;
+  font-size: 18px;
+  border-radius: 5px 0px 0px 5px;;
+  color: black;
+  border: 1px solid #e3d8ed;
+  box-shadow: 1px 1px 1px 1px gray;
+}
+
+button {
+  /* margin-right: 10px; */
+  width: 80;
+  height: 30px;
+  font-family: inherit;
+  font-size: 18px;
+  border-radius: 0px 5px 5px 0px;
+  color: black;
+  background-color: #e3d8ed;
+  border: 1px solid #e3d8ed;
+  box-shadow: 1px 1px 1px 1px gray;
 }
 </style>

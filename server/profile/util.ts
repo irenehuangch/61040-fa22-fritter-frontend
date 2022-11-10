@@ -2,10 +2,13 @@ import type {HydratedDocument} from 'mongoose';
 import moment from 'moment';
 import type {Profile, PopulatedProfile} from './model';
 import type {User} from '../user/model';
-import type {Freet} from '../freet/model';
+import type {Freet, PopulatedFreet} from '../freet/model';
 import type {Followers, PopulatedFollowers} from '../followers/model';
 import UserCollection from '../user/collection';
 import FollowersCollection from '../followers/collection';
+import { constructFreetResponse, type FreetResponse } from '../freet/util';
+import StudioCollection from '../studio/collection';
+import { constructStudioResponse } from '../studio/util';
 
 // Update this if you add a property to the Freet type!
 type ProfileResponse = {
@@ -15,8 +18,17 @@ type ProfileResponse = {
   followers: string[];
   following: string[];
   bio: string;
-  freets: Freet[];
+  freets: FreetResponse[];
 };
+
+/**
+ * Encode a date as an unambiguous string
+ *
+ * @param {Date} date - A date object
+ * @returns {string} - formatted date as string
+ */
+ const formatDate = (date: Date): string => moment(date).format('MMMM Do YYYY, h:mm:ss a');
+
 
 /**
  * Transform a raw Freet object from the database into an object
@@ -57,9 +69,26 @@ const constructProfileResponse = async (profile: HydratedDocument<Profile>): Pro
   ) : [];
 
   // Populate freets
-  const freets = await profile.populate<{freets: Freet[]}>({
-    path: 'freets'
+  const freets = await profile.populate<{freets: PopulatedFreet[]}>({
+    path: 'freets',
+    populate: [
+      {path:'authorId'}
+    ]
   }).then(m => m.freets.filter(f => f.circle === 'public'));
+
+  const formatFreets:FreetResponse[] = await Promise.all(freets.map(async f => {
+    const studio = await StudioCollection.findOneByFreetId(f._id);
+    const studioFormat = (studio !== null) ? await constructStudioResponse(studio) : null;
+
+    return {
+      ...f,
+      _id: f._id.toString(),
+      dateCreated: formatDate(f.dateCreated),
+      dateModified: formatDate(f.dateModified),
+      author: f.authorId.username,
+      studio: studioFormat
+    }
+  }))
 
   return {
     _id: profileCopy._id.toString(),
@@ -68,7 +97,7 @@ const constructProfileResponse = async (profile: HydratedDocument<Profile>): Pro
     followers,
     following,
     bio: profileCopy.bio,
-    freets
+    freets: formatFreets
   };
 };
 

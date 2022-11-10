@@ -57,6 +57,27 @@ class FreetCollection {
   }
 
   /**
+   * Get all the public freets in the database
+   *
+   * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
+   */
+   static async findAllPublic(): Promise<Array<HydratedDocument<Freet>>> {
+    // Retrieves public freets and sorts them from most to least recent
+    return FreetModel.find({circle: 'public'}).sort({dateModified: -1}).populate('authorId');
+  }
+
+  /**
+   * Find all the public freets by given author
+   *
+   * @param {string} username - The username of author of the freets
+   * @return {Promise<HydratedDocument<Freet>[]>} - An array of all of the freets
+   */
+   static async findAllPublicByUsername(username: string): Promise<Array<HydratedDocument<Freet>>> {
+    const author = await UserCollection.findOneByUsername(username);
+    return FreetModel.find({authorId: author._id, circle: 'public'}).sort({dateModified: -1}).populate('authorId');
+  }
+
+  /**
    * Get all the freets in by given author
    *
    * @param {string} username - The username of author of the freets

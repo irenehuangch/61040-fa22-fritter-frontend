@@ -8,7 +8,7 @@
     >
       {{ list ? list.length : 0 }} {{ this.value }}
     </button>
-    <PopupComponent 
+    <UsersPopup 
       v-if="this.isOpen == true" 
       @close="closePopup" 
       :usernames="list" 
@@ -18,11 +18,11 @@
 </template>
 
 <script>
-import PopupComponent from '@/components/Profile/PopupComponent.vue';
+import UsersPopup from '@/components/Circles/UsersPopup.vue';
 
 export default {
-  name: 'ProfileFollowersButton',
-  components: {PopupComponent},
+  name: 'UsersPopupButton',
+  components: {UsersPopup},
   props: {
     // Data from the profile page
     value: {
@@ -52,4 +52,16 @@ export default {
 </script>
 
 <style scoped>
+button {
+  margin-left: 10px;
+  width: 80;
+  height: 30px;
+  font-family: inherit;
+  font-size: 18px;
+  border-radius: 5px;
+  color: black;
+  background-color: #e3d8ed;
+  border: 1px solid #e3d8ed;
+  box-shadow: 1px 1px 1px 1px gray;
+}
 </style>

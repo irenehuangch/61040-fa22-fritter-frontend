@@ -4,20 +4,21 @@
 import BlockForm from '@/components/common/BlockForm.vue';
 
 export default {
-  name: 'CreateFreetForm',
+  name: 'CreateCircleForm',
   mixins: [BlockForm],
   data() {
     return {
-      url: '/api/freets',
+      url: '/api/circles',
       method: 'POST',
       hasBody: true,
       fields: [
-        {id: 'content', label: 'Content', value: ''}
+        {id: 'circle_name', label: 'Circle Name', value: ''}
       ],
-      title: 'Create a freet',
+      title: 'New Circle',
       refreshFreets: true,
       callback: () => {
-        const message = 'Successfully created a freet!';
+        const message = 'Successfully created a circle!';
+        this.$store.commit('refreshCircles');
         this.$set(this.alerts, message, 'success');
         setTimeout(() => this.$delete(this.alerts, message), 3000);
       }

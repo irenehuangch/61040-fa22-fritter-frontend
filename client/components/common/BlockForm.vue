@@ -11,20 +11,29 @@
         v-for="field in fields"
         :key="field.id"
       >
-        <label :for="field.id">{{ field.label }}:</label>
-        <textarea
-          v-if="field.id === 'content'"
-          :name="field.id"
+        <DropdownForm 
+          v-if="field.type === 'circleDropdown'" 
+          :type="field.label"
           :value="field.value"
-          @input="field.value = $event.target.value"
         />
-        <input
-          v-else
-          :type="field.id === 'password' ? 'password' : 'text'"
-          :name="field.id"
-          :value="field.value"
-          @input="field.value = $event.target.value"
-        >
+        <section v-else>
+          <label :for="field.id">{{ field.label }}:</label>
+          <textarea
+            v-if="field.id === 'content'"
+            :name="field.id"
+            :value="field.value"
+            @input="field.value = $event.target.value"
+          />
+          
+          <input
+            v-else
+            :type="field.id === 'password' ? 'password' : 'text'"
+            :name="field.id"
+            :value="field.value"
+            @input="field.value = $event.target.value"
+          >
+        </section>
+        
       </div>
     </article>
     <article v-else>
@@ -48,9 +57,11 @@
 </template>
 
 <script>
+import DropdownForm from '@/components/Freet/DropdownForm.vue';
 
 export default {
   name: 'BlockForm',
+  components: {DropdownForm},
   data() {
     /**
      * Options for submitting this form.
@@ -58,7 +69,7 @@ export default {
     return {
       url: '', // Url to submit form to
       method: 'GET', // Form request method
-      hasBody: false, // Whether or not form request has a body
+      hasBody: false, // Whether or not form request has a body,
       setUsername: false, // Whether or not stored username should be updated after form submission
       refreshFreets: false, // Whether or not stored freets should be updated after form submission
       alerts: {}, // Displays success/error messages encountered during form submission
@@ -102,7 +113,7 @@ export default {
         if (this.refreshFreets) {
           this.$store.commit('refreshFreets');
         }
-
+        
         if (this.callback) {
           this.callback();
         }
@@ -117,13 +128,16 @@ export default {
 
 <style scoped>
 form {
-  border: 1px solid #111;
+  border-radius: 15px;
+  box-shadow: 2px 2px 2px 2px #b29dbf;
+  border-radius: 15px;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin-bottom: 14px;
   position: relative;
+  background-color: white;
 }
 
 article > div {
@@ -148,4 +162,22 @@ textarea {
    font-family: inherit;
    font-size: inherit;
 }
+
+input {
+  margin-left: 5px;
+}
+
+form button {
+  height: 30px;
+  width: 60px;
+  font-size: 18px;
+  font-family: inherit;
+  border-radius: 5px;
+  color: black;
+  background-color: #e3d8ed;
+  border: 1px solid #e3d8ed;
+  box-shadow: 1px 1px 1px 1px gray;
+  width: 200px;
+}
+
 </style>

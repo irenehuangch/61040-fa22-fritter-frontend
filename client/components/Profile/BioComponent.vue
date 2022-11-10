@@ -6,7 +6,6 @@
   >
     <section>
       <div>
-        Bio: 
         <span
           v-if="!editing"
           class="content"
@@ -14,45 +13,48 @@
           {{ $store.state.bio }}
       </span>
       </div>
-      <textarea
-        v-if="editing"
-        class="content"
-        :value="draft"
-        @input="draft = $event.target.value"
-      />
+      <div class="actions">
+        <textarea
+          v-if="editing"
+          :value="draft"
+          @input="draft = $event.target.value"
+        />
       
-      <div
-        v-if="$store.state.username === $store.state.profileUsername || !$store.state.profileUsername"
-        class="actions"
-      >
-        <button
-          v-if="editing"
-          @click="submitEdit"
+        <div
+          v-if="$store.state.username === $store.state.profileUsername || !$store.state.profileUsername"
+          
         >
-          ✅ Save changes
-        </button>
-        <button
-          v-if="editing"
-          @click="stopEditing"
-        >
-          🚫 Discard changes
-        </button>
-        <button
-          v-if="!editing"
-          @click="startEditing"
-        >
-          ✏️ Edit
-        </button>
+          <button
+            v-if="editing"
+            @click="submitEdit"
+            class="editButton"
+          >
+            ✅ Save changes
+          </button>
+          <button
+            v-if="editing"
+            @click="stopEditing"
+            class="editButton"
+          >
+            🚫 Discard changes
+          </button>
+          <button
+            v-if="!editing"
+            @click="startEditing"
+          >
+            ✏️ Edit
+          </button>
+          <section class="alerts">
+            <article
+              v-for="(status, alert, index) in alerts"
+              :key="index"
+              :class="status"
+            >
+              <article>{{ alert }}</article>
+            </article>
+          </section>
+        </div>
       </div>
-    </section>
-    <section :class="alerts">
-      <article
-        v-for="(status, alert, index) in alerts"
-        :key="index"
-        :class="status"
-      >
-        <article>{{ alert }}</article>
-      </article>
     </section>
   </article>
 </template>
@@ -96,7 +98,6 @@ export default {
       if (this.bio === this.draft) {
         const error = 'Error: Edited bio content should be different than current bio.';
         this.$set(this.alerts, error, 'error'); // Set an alert to be the error text, timeout of 3000 ms
-        // console.log(this.alerts);
         setTimeout(() => this.$delete(this.alerts, error), 3000);
         return;
       }
@@ -149,4 +150,34 @@ export default {
 </script>
 
 <style scoped>
+* {
+  font-size: inherit;
+}
+.alerts {
+  position: relative;
+}
+
+.actions {
+  margin-bottom: 10px;
+  /* display: inflex; */
+  /* flex-direction: row; */
+  /* justify-content: space-around; */
+}
+
+button {
+  margin-right: 10px;
+  width: 120px;
+  height: 30px;
+  font-family: inherit;
+  font-size: 18px;
+  border-radius: 5px;
+  color: black;
+  background-color: #e3d8ed;
+  border: 1px solid #e3d8ed;
+  box-shadow: 1px 1px 1px 1px gray;
+}
+
+.editButton {
+  width: 200px;
+}
 </style>

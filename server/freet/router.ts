@@ -10,11 +10,11 @@ import StudioCollection from '../studio/collection';
 const router = express.Router();
 
 /**
- * Get all the freets
+ * Get all the public freets
  *
  * @name GET /api/freets
  *
- * @return {FreetResponse[]} - A list of all the freets sorted in descending
+ * @return {FreetResponse[]} - A list of all the public freets sorted in descending
  *                      order by date modified
  */
 /**
@@ -36,16 +36,16 @@ router.get(
       return;
     }
 
-    const allFreets = await FreetCollection.findAll();
-    const response = allFreets.map(util.constructFreetResponse);
+    const allFreets = await FreetCollection.findAllPublic();
+    const response = await Promise.all(allFreets.map(util.constructFreetResponse));
     res.status(200).json(response);
   },
   [
     userValidator.isAuthorExists
   ],
   async (req: Request, res: Response) => {
-    const authorFreets = await FreetCollection.findAllByUsername(req.query.author as string);
-    const response = authorFreets.map(util.constructFreetResponse);
+    const authorFreets = await FreetCollection.findAllPublicByUsername(req.query.author as string);
+    const response = await Promise.all(authorFreets.map(util.constructFreetResponse));
     res.status(200).json(response);
   }
 );
@@ -72,10 +72,10 @@ router.post(
   async (req: Request, res: Response) => {
     const userId = (req.session.userId as string) ?? ''; // Will not be an empty string since its validated in isUserLoggedIn
     const freet = await FreetCollection.addOne(userId, req.body.content, req.body.circle_name);
-
+    const response = await util.constructFreetResponse(freet);
     res.status(201).json({
       message: 'Your freet was created successfully.',
-      freet: util.constructFreetResponse(freet)
+      freet: response
     });
   }
 );
@@ -129,9 +129,10 @@ router.patch(
   ],
   async (req: Request, res: Response) => {
     const freet = await FreetCollection.updateOne(req.params.freetId, req.body);
+    const response = await util.constructFreetResponse(freet);
     res.status(200).json({
       message: 'Your freet was updated successfully.',
-      freet: util.constructFreetResponse(freet)
+      freet: response
     });
   }
 );

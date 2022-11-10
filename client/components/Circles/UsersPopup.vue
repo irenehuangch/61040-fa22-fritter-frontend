@@ -31,7 +31,7 @@
 
 <script>
 export default {
-  name: 'PopupComponent',
+  name: 'UsersPopup',
   props: {
     usernames: {
       type: Array,
@@ -45,7 +45,8 @@ export default {
   data() {
     return {
       type: this.value,
-      popupUsernames: this.usernames
+      popupUsernames: this.usernames,
+      alerts: {}
     };
   },
   methods: {
@@ -60,14 +61,13 @@ export default {
         if (!r.ok) {
           throw new Error(res.error);
         }
-
         this.$store.commit('updateProfileUsername', res.username);
         this.$store.commit('updateName', res.name);
         this.$store.commit('updateFollowing', res.following);
         this.$store.commit('updateFollowers', res.followers);
         this.$store.commit('updateBio', res.bio);
         this.$store.commit('updateProfileFreets', res.profileFreets);
-        this.popupUsernames = this.type === 'Followers' ? res.followers : res.following;
+        this.popupUsernames = this.$store.state.circleFilter.circle_usernames;
         this.$emit('close');
       } catch (e) {
         if (this.value === this.$store.state.profileUsername) {
@@ -115,7 +115,7 @@ export default {
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  font-family: Helvetica, Arial, sans-serif;
+  /* font-family: Helvetica, Arial, sans-serif; */
 }
 
 .modal-header h3 {

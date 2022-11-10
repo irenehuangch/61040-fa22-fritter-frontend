@@ -4,7 +4,7 @@ import type {Studio, PopulatedStudio} from './model';
 import type {Freet, PopulatedFreet} from '../freet/model';
 
 // Update this if you add a property to the Freet type!
-type StudioResponse = {
+export type StudioResponse = {
   _id: string;
   freet: Freet;
   font: string;

@@ -4,19 +4,19 @@
 <template>
   <main>
     <section>
-      <header>
-        <h2>Account settings for @{{ $store.state.username }}</h2>
-      </header>
-      <ChangeUsernameForm />
-      <ChangePasswordForm />
-      <ChangeNameForm />
+      <LogoutForm class="small"/>
     </section>
     <section>
       <header>
-        <h2>Account management</h2>
+        <h2>Account settings for @{{ $store.state.username }}</h2>
       </header>
-      <LogoutForm />
-      <DeleteAccountForm />
+      <div class="settings">
+        <ChangeUsernameForm class="item"/>
+        <ChangePasswordForm class="item"/>
+        <ChangeNameForm class="item"/>
+        <DeleteAccountForm class="small"/>
+      </div>
+      <!-- <DeleteAccountForm class="small"/> -->
     </section>
   </main>
 </template>
@@ -39,3 +39,26 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+section {
+  margin: 5%;
+}
+
+.settings {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.item {
+  margin-right: 30px;
+}
+
+
+.small {
+  width: 25%;
+}
+
+</style>

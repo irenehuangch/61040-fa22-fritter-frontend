@@ -6,26 +6,34 @@
   <nav>
     <div class="left">
       <img src="../../public/logo.svg">
+      <router-link to="/">
       <h1 class="title">
         Fritter
-      </h1>
+      </h1></router-link>
     </div>
     <div class="right">
       <router-link to="/">
         Home
       </router-link>
       <router-link
-      v-if="$store.state.username"
-        to="/account"
+        v-if="$store.state.username"
+        to="/circles"
+        @click.native="$store.commit('refreshCircles')"
       >
-        Account
+        Circles
       </router-link>
       <router-link
         v-if="$store.state.username"
         to="/profile"
-        @click.native="$store.commit('refreshProfile')"
+        @click.native="$store.commit('getOriginalProfile'),$store.commit('refreshProfile')"
       >
         Profile
+      </router-link>
+      <router-link
+      v-if="$store.state.username"
+        to="/account"
+      >
+        Account
       </router-link>
       <router-link
         v-else
@@ -49,7 +57,7 @@
 <style scoped>
 nav {
     padding: 1vw 2vw;
-    background-color: #ccc;
+    background-color: #f1edfa;
     display: flex;
     justify-content: space-between;
     align-items: center;

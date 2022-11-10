@@ -20,9 +20,7 @@ const isFreetExists = async (req: Request, res: Response, next: NextFunction) =>
   const freet = validFormat ? await FreetCollection.findOne(freetId) : '';
   if (!freet) {
     res.status(404).json({
-      error: {
-        freetNotFound: `Freet with freet ID ${freetId} does not exist.`
-      }
+      error: `Freet with freet ID ${freetId} does not exist.`
     });
     return;
   }
@@ -38,9 +36,7 @@ const isStudioExists = async (req: Request, res: Response, next: NextFunction) =
   const studio = await StudioCollection.findOneByFreetId(freetId);
   if (!studio) {
     res.status(404).json({
-      error: {
-        noStudioComponent: `No studio component has been created for freet with ID ${freetId}.`
-      }
+      error: `No studio component has been created for freet with ID ${freetId}.`
     });
     return;
   }
@@ -56,9 +52,7 @@ const isAlreadyCreated = async (req: Request, res: Response, next: NextFunction)
   const studio = await StudioCollection.findOneByFreetId(freetId);
   if (studio) {
     res.status(409).json({
-      error: {
-        alreadyCreated: `A studio component has already been created for freet with ID ${freetId}.`
-      }
+      error: `A studio component has already been created for freet with ID ${freetId}.`
     });
     return;
   }

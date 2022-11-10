@@ -12,9 +12,7 @@ const isUserInCircle = async (req: Request, res: Response, next: NextFunction) =
   const circle = await CircleCollection.findOneByCircleName(req.session.userId, req.params.circle_name ? req.params.circle_name : req.body.circle_name);
   if (!circle) {
     res.status(404).json({
-      error: {
-        circleNotFound: 'You do not currently have a circle under this name.'
-      }
+      error: 'You do not currently have a circle under this name.'
     });
     return;
   }
@@ -35,9 +33,7 @@ const isCircleNameAvailable = async (req: Request, res: Response, next: NextFunc
   }
 
   res.status(409).json({
-    error: {
-      username: `You are already in a circle named ${circle_name}. Please choose another name.`
-    }
+    error: `You are already in a circle named ${circle_name}. Please choose another name.`
   });
 };
 
@@ -47,9 +43,7 @@ const isCircleNameAvailable = async (req: Request, res: Response, next: NextFunc
 const isValidExistingCircle = (req: Request, res: Response, next: NextFunction) => {
   if (!req.params.circle_name) {
     res.status(400).json({
-      error: {
-        name: 'Circle name must be a nonempty string.'
-      }
+      error: 'Circle name must be a nonempty string.'
     });
     return;
   }
@@ -63,9 +57,7 @@ const isValidExistingCircle = (req: Request, res: Response, next: NextFunction) 
 const isValidExistingName = (req: Request, res: Response, next: NextFunction) => {
   if (req.query.name.length === 0) {
     res.status(400).json({
-      error: {
-        name: 'Circle name must be a nonempty string.'
-      }
+      error: 'Circle name must be a nonempty string.'
     });
     return;
   }
@@ -79,9 +71,7 @@ const isValidExistingName = (req: Request, res: Response, next: NextFunction) =>
 const isValidNewName = (req: Request, res: Response, next: NextFunction) => {
   if (!req.body.circle_name || req.body.circle_name.length === 0) {
     res.status(400).json({
-      error: {
-        name: 'Circle name must be a nonempty string.'
-      }
+      error: 'Circle name must be a nonempty string.'
     });
     return;
   }
