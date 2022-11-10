@@ -3,17 +3,19 @@
 
 <template>
   <main>
-    <section>
-      <header>
-        <h2>New to Fritter?</h2>
-      </header>
-      <RegisterForm />
-    </section>
-    <section>
-      <header>
-        <h2>Have an account?</h2>
-      </header>
-      <LoginForm />
+    <section class="login">
+      <section>
+        <header>
+          <h2>Have an account?</h2>
+        </header>
+        <LoginForm />
+      </section>
+      <section>
+        <header>
+          <h2>New to Fritter?</h2>
+        </header>
+        <RegisterForm />
+      </section>
     </section>
   </main>
 </template>
@@ -30,3 +32,13 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.login {
+  display: grid;
+  grid-gap: 4%;
+  grid-template-columns: 48% 48%;
+  margin-top: 3%;
+}
+
+</style>

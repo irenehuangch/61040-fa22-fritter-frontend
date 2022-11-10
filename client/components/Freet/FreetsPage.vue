@@ -53,7 +53,7 @@
       <article
         v-else
       >
-        <h3>No freets found.</h3>
+        <h3 class="noFreets">No freets found.</h3>
       </article>
     </section>
   </main>
@@ -94,6 +94,10 @@ export default {
 
 .newFreet {
   position: static;
+}
+
+.noFreets {
+  margin-left: 5%;
 }
 
 section {
